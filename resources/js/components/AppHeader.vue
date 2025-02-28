@@ -41,7 +41,7 @@ const activeItemStyles = computed(() => (url: string) => (isCurrentRoute(url) ? 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: '/',
         icon: LayoutGrid,
     },
 ];

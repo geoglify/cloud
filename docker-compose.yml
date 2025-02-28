@@ -1,0 +1,26 @@
+services:
+    webapp:
+        build: .
+        image: geoglify/webapp
+        container_name: gwebapp
+        restart: always
+        environment:
+            PHP_OPCACHE_ENABLE: 0
+            PRODUCTION: 0
+        ports:
+            - 8081:80
+            - 8080:8080
+            - 5173:5173
+        volumes:
+            - .:/var/www/webapp
+            - node-modules-data:/var/www/webapp/node_modules
+            - vendor-data:/var/www/webapp/vendor
+        healthcheck:
+            test: [ 'CMD', 'curl', '-f', 'http://webapp/' ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+
+volumes:
+    vendor-data:
+    node-modules-data:

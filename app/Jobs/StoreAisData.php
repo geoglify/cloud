@@ -43,10 +43,13 @@ class StoreAisData implements ShouldQueue
         // Skip if aisData does not contain 'mmsi' key
         if (!isset($this->aisData['mmsi'])) {
             Log::warning("Skipping AIS data: Missing 'mmsi' key", $this->aisData);
-            return;
+            
+            // Skip if aisData does not contain 'imo' key
+            if (!isset($this->aisData['imo'])) {
+                Log::warning("Skipping AIS data: Missing 'imo' key", $this->aisData);
+                return;
+            }
         }
-        
-        Log::info("Storing AIS data", $this->aisData);
 
         // Update or create the ship and get the ship instance
         $ship = $this->updateOrCreateShip($this->aisData);

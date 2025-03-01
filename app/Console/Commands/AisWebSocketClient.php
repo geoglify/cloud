@@ -7,7 +7,6 @@ use Amp\Websocket\Client\WebsocketHandshake;
 use function Amp\Websocket\Client\connect;
 use App\Jobs\StoreAisData;
 use DateTime;
-use DateTimeZone;
 
 class AisWebSocketClient extends Command
 {
@@ -95,9 +94,9 @@ class AisWebSocketClient extends Command
         // Extract relevant data from the AIS message
         // Extract relevant data from the AIS message
         $data = [
-            'mmsi' => $aisMessage['Message']['PositionReport']['UserID'] ?? null,
-            'latitude' => $aisMessage['Message']['PositionReport']['Latitude'] ?? null,
-            'longitude' => $aisMessage['Message']['PositionReport']['Longitude'] ?? null,
+            'mmsi' => $aisMessage['MetaData']['MMSI'] ?? $aisMessage['Message']['PositionReport']['UserID'],
+            'latitude' => $aisMessage['Message']['PositionReport']['Latitude'] ?? $aisMessage['MetaData']['latitude'],
+            'longitude' => $aisMessage['Message']['PositionReport']['Longitude'] ?? $aisMessage['MetaData']['longitude'],
             'sog' => $aisMessage['Message']['PositionReport']['Sog'] ?? null, // Speed Over Ground
             'cog' => $aisMessage['Message']['PositionReport']['Cog'] ?? null, // Course Over Ground
             'hdg' => $aisMessage['Message']['PositionReport']['TrueHeading'] ?? null, // True Heading
@@ -110,7 +109,7 @@ class AisWebSocketClient extends Command
             'dim_c' => $aisMessage['Message']['ShipStaticData']['Dimension']['C'] ?? null,
             'dim_d' => $aisMessage['Message']['ShipStaticData']['Dimension']['D'] ?? null,
             'imo' => $aisMessage['Message']['ShipStaticData']['ImoNumber'] ?? null,
-            'destination' => $aisMessage['Message']['ShipStaticData']['Destination'] ?? null,
+            'destination' => trim($aisMessage['Message']['ShipStaticData']['Destination'] ?? "Unknown"),
             'cargo' => $aisMessage['Message']['ShipStaticData']['Type'] ?? null,
             'callsign' => $aisMessage['Message']['ShipStaticData']['CallSign'] ?? null,
             'draught' => $aisMessage['Message']['ShipStaticData']['MaximumStaticDraught'] ?? null,

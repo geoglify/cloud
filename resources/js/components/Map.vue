@@ -13,7 +13,6 @@ MapboxDraw.constants.classes.CONTROL_GROUP = "maplibregl-ctrl-group";
 // Reference for the map container element
 const mapContainer = ref(null);
 let map = null;
-let draw = null;
 
 onMounted(() => {
     if (!mapContainer.value) return;
@@ -21,7 +20,7 @@ onMounted(() => {
     // Initialize the map
     map = new maplibregl.Map({
         container: mapContainer.value,
-        style: 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json',
+        style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
         center: [0, 0],
         zoom: 1,
     });

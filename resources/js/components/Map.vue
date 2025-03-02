@@ -4,6 +4,7 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
+import ShipLayer from './ShipLayer.vue';
 
 // Override Mapbox Draw constants to use Maplibre GL classes
 MapboxDraw.constants.classes.CONTROL_BASE = 'maplibregl-ctrl';
@@ -24,10 +25,6 @@ onMounted(() => {
         center: [0, 0],
         zoom: 1,
     });
-
-    window.Echo.channel('ships.latest_positions').listen('ShipsLatestPositionsUpdated', (data) => {
-        console.log('Dados recebidos:', data);
-    });
 });
 
 onBeforeUnmount(() => {
@@ -41,4 +38,6 @@ onBeforeUnmount(() => {
     <div class="h-full w-full">
         <div ref="mapContainer" class="h-full w-full"></div>
     </div>
+    
+    <ShipLayer />
 </template>

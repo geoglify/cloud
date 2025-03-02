@@ -23,7 +23,7 @@ class BroadcastShipsLatestPositions implements ShouldQueue
         // Processing ships in chunks of 100
         ShipLatestPositionView::chunk(200, function ($chunk) {
             
-            //Log::info('Broadcasting ships latest positions', ['count' => $chunk->count()]);
+            Log::info('Broadcasting ships latest positions', ['count' => $chunk->count()]);
             
             // Broadcasting the chunk of data after mapping
             broadcast(new ShipsLatestPositionsUpdated($chunk->toArray()));

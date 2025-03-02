@@ -17,12 +17,17 @@ class StoreAisData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * Array of AIS data for multiple ships.
+     *
+     * @var array
+     */
     protected $aisData;
 
     /**
      * Create a new job instance.
      *
-     * @param array $aisData
+     * @param array $aisData Array of AIS data for multiple ships.
      */
     public function __construct(array $aisData)
     {
@@ -34,35 +39,39 @@ class StoreAisData implements ShouldQueue
      */
     public function handle()
     {
-        // Skip if the data is not an array
-        if (!is_array($this->aisData)) {
-            Log::warning("Skipping AIS data: Not an array", $this->aisData);
+        // Skip if the data is not an array or is empty
+        if (!is_array($this->aisData) || empty($this->aisData)) {
+            Log::warning("Skipping AIS data: Not an array or empty", $this->aisData);
             return;
         }
 
-        // Skip if aisData does not contain 'mmsi' key
-        if (!isset($this->aisData['mmsi'])) {
-            Log::warning("Skipping AIS data: Missing 'mmsi' key", $this->aisData);
-            
-            // Skip if aisData does not contain 'imo' key
-            if (!isset($this->aisData['imo'])) {
-                Log::warning("Skipping AIS data: Missing 'imo' key", $this->aisData);
-                return;
+        // Process each ship in the array
+        foreach ($this->aisData as $shipData) {
+            // Skip if the ship data is not an array
+            if (!is_array($shipData)) {
+                Log::warning("Skipping invalid ship data: Not an array", $shipData);
+                continue;
             }
+
+            // Skip if ship data does not contain 'mmsi' or 'imo' key
+            if (!isset($shipData['mmsi']) && !isset($shipData['imo'])) {
+                Log::warning("Skipping ship data: Missing 'mmsi' and 'imo' keys", $shipData);
+                continue;
+            }
+
+            // Update or create the ship and get the ship instance
+            $ship = $this->updateOrCreateShip($shipData);
+
+            // Use the ship ID to update/create realtime and historical positions
+            $shipData['id'] = $ship->id; // Add the ship ID to the data array
+            $this->updateOrCreateShipRealtimePosition($shipData);
+            $this->createHistoricalPosition($shipData);
         }
-
-        // Update or create the ship and get the ship instance
-        $ship = $this->updateOrCreateShip($this->aisData);
-
-        // Use the ship ID to update/create realtime and historical positions
-        $this->aisData['id'] = $ship->id; // Add the ship ID to the data array
-        $this->updateOrCreateShipRealtimePosition($this->aisData);
-        $this->createHistoricalPosition($this->aisData);
     }
 
     /**
      * Update or create the ship.
-     * 
+     *
      * @param array $shipData
      * @return Ship
      */
@@ -90,7 +99,7 @@ class StoreAisData implements ShouldQueue
 
     /**
      * Update or create the realtime position for the ship.
-     * 
+     *
      * @param array $shipData
      * @return void
      */
@@ -114,7 +123,7 @@ class StoreAisData implements ShouldQueue
 
     /**
      * Create a historical position for the ship.
-     * 
+     *
      * @param array $shipData
      * @return void
      */
@@ -136,7 +145,7 @@ class StoreAisData implements ShouldQueue
 
     /**
      * Get the cargo type from the ship data.
-     * 
+     *
      * @param array $shipData
      * @return CargoType|null
      */
@@ -149,7 +158,7 @@ class StoreAisData implements ShouldQueue
 
     /**
      * Filter out empty values from the data array.
-     * 
+     *
      * @param array $data
      * @return array
      */

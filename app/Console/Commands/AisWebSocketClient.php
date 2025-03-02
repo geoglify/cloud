@@ -7,6 +7,7 @@ use Amp\Websocket\Client\WebsocketHandshake;
 use function Amp\Websocket\Client\connect;
 use App\Jobs\StoreAisData;
 use DateTime;
+use Carbon\Carbon;
 
 class AisWebSocketClient extends Command
 {
@@ -23,6 +24,13 @@ class AisWebSocketClient extends Command
      * @var string
      */
     protected $description = 'Listen to the AIS WebSocket stream and process messages in real-time';
+
+    /**
+     * Array to accumulate ship data.
+     *
+     * @var array
+     */
+    private $shipsData = [];
 
     /**
      * Execute the console command.
@@ -54,6 +62,9 @@ class AisWebSocketClient extends Command
         // Send the payload to the server
         $connection->sendText($payload);
 
+        // Variable to track the last time the job was dispatched
+        $lastDispatchTime = Carbon::now();
+
         // Process incoming messages
         foreach ($connection as $message) {
             // Get the data from the message
@@ -61,6 +72,22 @@ class AisWebSocketClient extends Command
 
             // Process the AIS message
             $this->processAisMessage($data);
+
+            // Check if 5 seconds have passed since the last dispatch
+            if ($lastDispatchTime->diffInSeconds(Carbon::now()) >= 1) {
+
+                // Log the dispatch
+                $this->info("AIS Data Dispatched: " . count($this->shipsData) . " ships");
+
+                // Dispatch a job to store the accumulated AIS data
+                StoreAisData::dispatch($this->shipsData);
+
+                // Clear the accumulated data
+                $this->shipsData = [];
+
+                // Update the last dispatch time
+                $lastDispatchTime = Carbon::now();
+            }
 
             // Close the connection if the data is '100' (end of stream)
             if ($data === '100') {
@@ -74,7 +101,7 @@ class AisWebSocketClient extends Command
     }
 
     /**
-     * Process the AIS message.
+     * Process the AIS message and accumulate ship data.
      *
      * @param string $msg The raw AIS message in JSON format.
      */
@@ -89,8 +116,7 @@ class AisWebSocketClient extends Command
         }
 
         // Extract relevant data from the AIS message
-        // Extract relevant data from the AIS message
-        $data = [
+        $shipData = [
             'mmsi' => $aisMessage['MetaData']['MMSI'] ?? $aisMessage['Message']['PositionReport']['UserID'],
             'latitude' => $aisMessage['Message']['PositionReport']['Latitude'] ?? $aisMessage['MetaData']['latitude'],
             'longitude' => $aisMessage['Message']['PositionReport']['Longitude'] ?? $aisMessage['MetaData']['longitude'],
@@ -126,10 +152,10 @@ class AisWebSocketClient extends Command
                 : null,
         ];
 
-        // Dispatch a job to store the AIS data
-        StoreAisData::dispatch($data);
+        // Add the ship data to the accumulated array
+        $this->shipsData[] = $shipData;
 
         // Log the processed data
-        //$this->info("AIS Message Processed and Job Dispatched: " . $data['mmsi']);
+        //$this->info("AIS Message Processed: " . $shipData['mmsi']);
     }
 }

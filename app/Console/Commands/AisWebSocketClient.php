@@ -59,9 +59,6 @@ class AisWebSocketClient extends Command
             // Get the data from the message
             $data = $message->buffer();
 
-            // Log the raw data
-            $this->info("Received AIS Message: " . $data);
-
             // Process the AIS message
             $this->processAisMessage($data);
 
@@ -133,6 +130,6 @@ class AisWebSocketClient extends Command
         StoreAisData::dispatch($data);
 
         // Log the processed data
-        $this->info("AIS Message Processed and Job Dispatched: " . json_encode($data, JSON_PRETTY_PRINT));
+        //$this->info("AIS Message Processed and Job Dispatched: " . $data['mmsi']);
     }
 }

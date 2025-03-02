@@ -1,14 +1,14 @@
 <script setup lang="js">
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 // Override Mapbox Draw constants to use Maplibre GL classes
-MapboxDraw.constants.classes.CONTROL_BASE = "maplibregl-ctrl";
-MapboxDraw.constants.classes.CONTROL_PREFIX = "maplibregl-ctrl-";
-MapboxDraw.constants.classes.CONTROL_GROUP = "maplibregl-ctrl-group";
+MapboxDraw.constants.classes.CONTROL_BASE = 'maplibregl-ctrl';
+MapboxDraw.constants.classes.CONTROL_PREFIX = 'maplibregl-ctrl-';
+MapboxDraw.constants.classes.CONTROL_GROUP = 'maplibregl-ctrl-group';
 
 // Reference for the map container element
 const mapContainer = ref(null);
@@ -23,6 +23,10 @@ onMounted(() => {
         style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
         center: [0, 0],
         zoom: 1,
+    });
+
+    window.Echo.channel('ships.latest_positions').listen('ShipsLatestPositionsUpdated', (data) => {
+        console.log('Dados recebidos:', data);
     });
 });
 

@@ -55,6 +55,9 @@ php artisan key:generate --force
 
 echo "App key generated."
 
+# Recreate database views
+php artisan app:recreate-database-views
+
 # Clear the optimization cache
 php artisan optimize:clear
 

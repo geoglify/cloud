@@ -3,13 +3,11 @@ import 'maplibre-theme/classic.css';
 import 'maplibre-theme/icons.lucide.css';
 import { mapActions, mapState } from 'vuex';
 import MapHelper from './../helpers/map';
-import ShipDetails from './ShipDetails.vue';
 import ShipLayer from './ShipLayer.vue';
 
 export default {
     components: {
         ShipLayer,
-        ShipDetails,
     },
 
     props: {
@@ -99,7 +97,6 @@ export default {
 <template>
     <div id="map"></div>
     <ShipLayer :mapInstance="map" :data="ships" v-if="mapIsReady" />
-    <ShipDetails :ship="selectedShip" @centerMapOnShip="centerMapOnShip" />
 </template>
 
 <style>

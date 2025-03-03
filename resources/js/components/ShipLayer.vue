@@ -77,20 +77,6 @@ export default {
         },
     },
 
-    watch: {
-        selectedShip(newShip, oldShip) {
-            if (oldShip) {
-                this.dehighlightShip(oldShip);
-            }
-
-            if (newShip) {
-                this.highlightShip(newShip);
-            } else if (oldShip) {
-                this.dehighlightShip(oldShip);
-            }
-        },
-    },
-
     methods: {
         async initializeLayer() {
             await MapHelper.addIcon(this.mapInstance, 'shipIcon', '/images/boat-sdf.png');
@@ -104,21 +90,9 @@ export default {
 
             this.mapInstance.on('click', 'shipLayer', (e) => {
                 const ship = e.features[0].properties;
-                this.highlightShip(ship);
+                //redirect to ship details page
+                window.location.href = `/ships/${ship.mmsi}`;
             });
-        },
-
-        highlightShip(ship) {
-            const clickedShipId = ship.mmsi;
-            this.mapInstance.setFeatureState({ source: 'shipSource', id: clickedShipId * 100 }, { highlighted: true });
-            this.mapInstance.setFeatureState({ source: 'shipSource', id: clickedShipId * 10000 }, { highlighted: true });
-            store.dispatch('setSelectedShip', ship);
-        },
-
-        dehighlightShip(ship) {
-            const shipId = ship.mmsi;
-            this.mapInstance.setFeatureState({ source: 'shipSource', id: shipId * 100 }, { highlighted: false });
-            this.mapInstance.setFeatureState({ source: 'shipSource', id: shipId * 10000 }, { highlighted: false });
         },
 
         async fetchShips() {

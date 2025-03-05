@@ -1,13 +1,19 @@
-<script lang="js">
+<script lang="ts">
 import 'maplibre-theme/classic.css';
 import 'maplibre-theme/icons.lucide.css';
 import { mapActions, mapState } from 'vuex';
 import MapHelper from './../helpers/map';
 import ShipLayer from './ShipLayer.vue';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default {
     components: {
         ShipLayer,
+        Card,
+        CardContent,
+        CardDescription,
+        CardHeader,
+        CardTitle,
     },
 
     props: {
@@ -95,13 +101,22 @@ export default {
 </script>
 
 <template>
-    <div id="map"></div>
+    <Card>
+        <CardHeader>
+            <CardTitle>Map</CardTitle>
+            <CardDescription>Real-time ship positions</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div id="map"></div>
+        </CardContent>
+    </Card>
+
     <ShipLayer :mapInstance="map" :data="ships" v-if="mapIsReady" />
 </template>
 
 <style>
 #map {
-    height: 100%;
+    height: 570px;
     width: 100%;
     background-color: #000;
 }
